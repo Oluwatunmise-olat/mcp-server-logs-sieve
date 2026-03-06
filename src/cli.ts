@@ -1,12 +1,8 @@
 import "reflect-metadata";
 
 import { createProvider } from "./providers/index.js";
-import {
-  parseRelativeTime,
-  formatEntries,
-  formatSummary,
-  formatTrace,
-} from "./utils/formatting.js";
+import { parseRelativeTime } from "./utils/time.js";
+import { formatEntries, formatSummary, formatTrace } from "./utils/sanitize.js";
 
 const subcommand = process.argv[2];
 

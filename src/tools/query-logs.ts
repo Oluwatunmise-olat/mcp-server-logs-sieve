@@ -2,7 +2,8 @@ import { z } from "zod";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 import { LogProvider } from "../providers/types.js";
-import { parseRelativeTime, sanitizeEntries } from "../utils/formatting.js";
+import { parseRelativeTime } from "../utils/time.js";
+import { sanitizeEntries } from "../utils/sanitize.js";
 
 export function registerQueryLogs(server: McpServer, provider: LogProvider) {
   server.registerTool(

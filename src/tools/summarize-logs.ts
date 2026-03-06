@@ -2,7 +2,8 @@ import { z } from "zod";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 import { LogProvider } from "../providers/types.js";
-import { parseRelativeTime, sanitizeSummary } from "../utils/formatting.js";
+import { parseRelativeTime } from "../utils/time.js";
+import { sanitizeSummary } from "../utils/sanitize.js";
 
 export function registerSummarizeLogs(
   server: McpServer,

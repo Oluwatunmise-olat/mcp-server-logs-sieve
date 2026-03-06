@@ -241,7 +241,12 @@ function buildFilter(params: QueryParams): string {
   if (params.resource_type)
     parts.push(`resource.type = "${params.resource_type}"`);
 
-  if (params.log_name) parts.push(`logName = "${params.log_name}"`);
+  if (params.log_name) {
+    const logName = params.log_name.startsWith("projects/")
+      ? params.log_name
+      : `projects/${params.project_id}/logs/${params.log_name}`;
+    parts.push(`logName = "${logName}"`);
+  }
 
   return parts.join(" AND ");
 }
