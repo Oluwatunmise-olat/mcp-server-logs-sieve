@@ -225,9 +225,10 @@ function buildFilter(params: QueryParams): string {
   if (params.end_time) parts.push(`timestamp <= "${params.end_time}"`);
 
   if (params.text_filter) {
-    parts.push(
-      `(textPayload : "${params.text_filter}" OR jsonPayload : "${params.text_filter}" OR protoPayload : "${params.text_filter}")`,
-    );
+    const escaped = params.text_filter
+      .replace(/\\/g, "\\\\")
+      .replace(/"/g, '\\"');
+    parts.push(`SEARCH("${escaped}")`);
   }
 
   if (params.resource_type)

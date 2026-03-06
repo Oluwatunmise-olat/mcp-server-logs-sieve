@@ -2,7 +2,7 @@ import { z } from "zod";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 import { LogProvider } from "../providers/types.js";
-import { parseRelativeTime, formatSummary } from "../utils/formatting.js";
+import { parseRelativeTime, sanitizeSummary } from "../utils/formatting.js";
 
 export function registerSummarizeLogs(
   server: McpServer,
@@ -19,7 +19,7 @@ export function registerSummarizeLogs(
         start_time: z
           .string()
           .optional()
-          .describe("Start time - ISO 8601 or relative"),
+          .describe("Start time - ISO 8601 or relative (defaults to 6h)"),
         end_time: z.string().optional().describe("End time - ISO 8601"),
         text_filter: z.string().optional().describe("Text to search for"),
         resource_type: z.string().optional().describe("Resource type"),
@@ -35,9 +35,7 @@ export function registerSummarizeLogs(
     async (params) => {
       const summary = await provider.summarizeLogs({
         ...params,
-        start_time: params.start_time
-          ? parseRelativeTime(params.start_time)
-          : undefined,
+        start_time: parseRelativeTime(params.start_time || "6h"),
         end_time: params.end_time
           ? parseRelativeTime(params.end_time)
           : undefined,
@@ -45,8 +43,7 @@ export function registerSummarizeLogs(
 
       return {
         content: [
-          { type: "text", text: formatSummary(summary) },
-          { type: "text", text: JSON.stringify(summary) },
+          { type: "text", text: JSON.stringify(sanitizeSummary(summary)) },
         ],
       };
     },

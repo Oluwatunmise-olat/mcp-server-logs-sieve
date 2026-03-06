@@ -2,7 +2,7 @@ import { z } from "zod";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 import { LogProvider } from "../providers/types.js";
-import { parseRelativeTime, formatTrace } from "../utils/formatting.js";
+import { parseRelativeTime, sanitizeTraces } from "../utils/formatting.js";
 
 export function registerTraceRequest(
   server: McpServer,
@@ -19,7 +19,7 @@ export function registerTraceRequest(
         start_time: z
           .string()
           .optional()
-          .describe("Start time - ISO 8601 or relative like 1h, 30m"),
+          .describe("Start time - ISO 8601 or relative like 1h, 30m (defaults to 1h)"),
         end_time: z.string().optional().describe("End time - ISO 8601"),
         text_filter: z
           .string()
@@ -38,9 +38,7 @@ export function registerTraceRequest(
     async (params) => {
       const traces = await provider.traceRequests({
         ...params,
-        start_time: params.start_time
-          ? parseRelativeTime(params.start_time)
-          : undefined,
+        start_time: parseRelativeTime(params.start_time || "1h"),
         end_time: params.end_time
           ? parseRelativeTime(params.end_time)
           : undefined,
@@ -48,8 +46,7 @@ export function registerTraceRequest(
 
       return {
         content: [
-          { type: "text", text: formatTrace(traces) },
-          { type: "text", text: JSON.stringify(traces) },
+          { type: "text", text: JSON.stringify(sanitizeTraces(traces)) },
         ],
       };
     },
