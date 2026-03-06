@@ -11,11 +11,18 @@ const MAX_OUTPUT_CHARS = 80_000;
 export function parseRelativeTime(input: string): string {
   const match = input.match(/^(\d+)([mhd])$/);
 
-  if (!match) return input;
+  if (match) {
+    const [, amount, unit] = match;
+    return new Date(
+      Date.now() - Number(amount) * TIME_UNITS[unit],
+    ).toISOString();
+  }
 
-  const [, amount, unit] = match;
+  if (/^\d{4}-\d{2}-\d{2}/.test(input)) return input;
 
-  return new Date(Date.now() - Number(amount) * TIME_UNITS[unit]).toISOString();
+  throw new Error(
+    `Invalid time format "${input}". Use ISO 8601 (e.g. 2026-03-06T00:00:00Z) or relative (e.g. 1h, 30m, 7d).`,
+  );
 }
 
 export function formatEntries(entries: LogEntry[]): string {
@@ -249,26 +256,28 @@ export function sanitizeEntries(entries: LogEntry[]): unknown {
     message: truncate(e.message, 500),
   }));
 
-  let sanitized = redacted.map((e) => redactDeep(e));
-  let json = JSON.stringify(sanitized);
+  const sanitized = redacted.map((e) => redactDeep(e));
 
-  while (json.length > MAX_OUTPUT_CHARS && sanitized.length > 1) {
-    const total = redacted.length;
-    sanitized = sanitized.slice(0, Math.max(1, sanitized.length - 10));
-    json = JSON.stringify({
-      entries: sanitized,
-      _note: `Showing ${sanitized.length} of ${total} entries. Narrow your query with time range or text_filter.`,
-    });
+  if (JSON.stringify(sanitized).length <= MAX_OUTPUT_CHARS) return sanitized;
+
+  let lowEnd = 1;
+
+  let highEnd = sanitized.length - 1;
+
+  while (lowEnd < highEnd) {
+    const mid = Math.ceil((lowEnd + highEnd) / 2);
+
+    if (JSON.stringify(sanitized.slice(0, mid)).length <= MAX_OUTPUT_CHARS) {
+      lowEnd = mid;
+    } else {
+      highEnd = mid - 1;
+    }
   }
 
-  if (sanitized.length < redacted.length) {
-    return {
-      entries: sanitized,
-      _note: `Showing ${sanitized.length} of ${redacted.length} entries. Narrow your query with time range or text_filter.`,
-    };
-  }
-
-  return sanitized;
+  return {
+    entries: sanitized.slice(0, lowEnd),
+    _note: `Showing ${lowEnd} of ${redacted.length} entries. Narrow your query with time range or text_filter.`,
+  };
 }
 
 export function sanitizeSummary(summary: LogSummary): unknown {

@@ -16,10 +16,21 @@ export class GcpLogProvider implements LogProvider {
   readonly id = "gcp";
   readonly name = "Google Cloud Logging";
 
+  private readonly clientCache = new Map<string, Logging>();
+
   constructor(@inject("Logging") private readonly logging: Logging) {}
 
   private loggingForProject(projectId?: string): Logging {
-    return projectId ? new Logging({ projectId }) : this.logging;
+    if (!projectId) return this.logging;
+
+    let client = this.clientCache.get(projectId);
+
+    if (!client) {
+      client = new Logging({ projectId });
+      this.clientCache.set(projectId, client);
+    }
+
+    return client;
   }
 
   async queryLogs(params: QueryParams): Promise<LogEntry[]> {
@@ -39,7 +50,6 @@ export class GcpLogProvider implements LogProvider {
     }
   }
 
-  // @Oluwatunmise-olat Improve summary logic
   async summarizeLogs(params: QueryParams): Promise<LogSummary> {
     const entries = await this.queryLogs({
       ...params,
@@ -61,9 +71,7 @@ export class GcpLogProvider implements LogProvider {
           (resourceTypeCounts[entry.resource_type] || 0) + 1;
       }
 
-      const key = entry.message
-        .substring(0, 80)
-        .replace(/[0-9a-f-]{8,}/gi, "*");
+      const key = messagePatternKey(entry.message);
 
       const hit = patterns.get(key);
 
@@ -98,14 +106,13 @@ export class GcpLogProvider implements LogProvider {
       const logging = this.loggingForProject(projectId);
       const sources: LogSource[] = [];
       const seenLogNames = new Set<string>();
-      // @Oluwatunmise-olat reminder here
+      const seenResourceTypes = new Set<string>();
+
       const [recent] = await logging.getEntries({
         filter: `resource.labels.project_id = "${projectId}"`,
         pageSize: 100,
         orderBy: "timestamp desc",
       });
-
-      const seen = new Set<string>();
 
       for (const entry of recent) {
         if (
@@ -118,8 +125,8 @@ export class GcpLogProvider implements LogProvider {
 
         const rt = entry.metadata.resource?.type;
 
-        if (rt && !seen.has(rt)) {
-          seen.add(rt);
+        if (rt && !seenResourceTypes.has(rt)) {
+          seenResourceTypes.add(rt);
           sources.push({ type: "resource_type", name: rt });
         }
       }
@@ -151,11 +158,11 @@ export class GcpLogProvider implements LogProvider {
           limit: params.limit || 50,
         });
 
+        const seen = new Set<string>();
         for (const entry of seed) {
-          if (entry.trace_id && !traceIds.includes(entry.trace_id)) {
-            traceIds.push(entry.trace_id);
-          }
+          if (entry.trace_id) seen.add(entry.trace_id);
         }
+        traceIds = [...seen];
       }
 
       if (!traceIds.length) return [];
@@ -290,4 +297,80 @@ function safeParsePayload(data: unknown): string {
   } catch {
     return String(data);
   }
+}
+
+function messagePatternKey(message: string): string {
+  const text = message.replace(/\s+/g, " ").trim();
+  if (!text) return "";
+
+  let parsed: unknown = null;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    parsed = null;
+  }
+
+  if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+    const obj = parsed as Record<string, unknown>;
+    const noisyKeyParts = [
+      "id",
+      "uuid",
+      "trace",
+      "span",
+      "request",
+      "session",
+      "timestamp",
+      "time",
+      "date",
+      "created",
+      "updated",
+      "ip",
+      "email",
+      "user",
+      "account",
+      "token",
+      "hash",
+      "path",
+      "url",
+      "uri",
+      "stack",
+      "line",
+      "column",
+      "offset",
+    ];
+    const entries = Object.entries(obj).sort(([a], [b]) => a.localeCompare(b));
+    const parts: string[] = [];
+
+    for (const [key, value] of entries) {
+      const keyLower = key.toLowerCase();
+      if (noisyKeyParts.some((part) => keyLower.includes(part))) continue;
+
+      let normalized: string | null = null;
+
+      if (typeof value === "string") {
+        normalized = value.replace(/\s+/g, " ").trim();
+      } else if (
+        typeof value === "number" ||
+        typeof value === "boolean" ||
+        value === null
+      ) {
+        normalized = String(value);
+      }
+
+      if (!normalized) continue;
+
+      const cleaned = normalized
+        .replace(/[0-9a-f-]{8,}/gi, "*")
+        .replace(/\b\d+\b/g, "N");
+      if (!cleaned) continue;
+
+      parts.push(`${key}=${cleaned}`);
+      if (parts.length >= 4) break;
+    }
+
+    if (parts.length > 0) return parts.join(" | ").slice(0, 180);
+  }
+
+  const shortText = text.slice(0, 120);
+  return shortText.replace(/[0-9a-f-]{8,}/gi, "*").replace(/\b\d+\b/g, "N");
 }
