@@ -1,39 +1,23 @@
-# CP Logs MCP Server
+# mcp-server-logs-sieve
 
-A Model Context Protocol (MCP) server that enables AI assistants to efficiently filter and analyze Cloud Platform logs by specific prefixes and patterns.
+MCP server for querying and summarizing Cloud Platform logs from coding assistants (Claude Code, Codex, Gemini, etc.).
 
-## Overview
+This repo is built for debugging workflows, not dashboards. You point your assistant at a project and ask practical questions like:
 
-This MCP server provides seamless integration between AI assistants and Cloud Logging, allowing you to quickly sieve through massive log datasets to find relevant information. Whether you're debugging applications, monitoring system health, or investigating security incidents, this tool streamlines log analysis workflows.
+- "show me wallet debit errors in the last 6 hours"
+- "summarize incident patterns for this user"
+- "trace request flow around a failed transaction"
 
-## Features
+## What it exposes
 
-- 🔍 **Prefix-based filtering** - Filter logs by specific text prefixes
-- 📊 **Multiple log sources**
-- ⏰ **Time range queries** - Filter logs within specific time windows
-- 📈 **Log aggregation** - Summarize and count matching log entries
-- 🛡️ **Secure authentication** - Uses service account credentials
+The server registers these MCP tools:
 
-## Examples
+- `query_logs`: filtered log search
+- `summarize_logs`: counts + top patterns
+- `list_log_sources`: discover log names and resource types
+- `trace_request`: pull logs grouped by trace
 
-### Basic Log Filtering
+## Project links
 
-"Show me all logs with prefix 'user-service:' from the last hour"
-
-### Error Investigation
-
-"Find all ERROR level logs containing 'database connection' from the past 24 hours"
-
-### Performance Monitoring
-
-"Aggregate logs with prefix 'response_time:' and group by service name"
-
-### Security Analysis
-
-"Search for logs matching pattern 'failed login._IP: 192.168._' in the last week"
-
-## Support
-
-- 📧 Email: theoluwatunmiseolatunbosun@gmail.com
-- 🐛 Issues: [GitHub Issues](https://github.com/Oluwatunmise-olat/mcp-server-logs-sieve/issues)
-- 💬 Discussions: [GitHub Discussions](https://github.com/Oluwatunmise-olat/mcp-server-logs-sieve/discussions)
+- Issues: [GitHub Issues](https://github.com/Oluwatunmise-olat/mcp-server-logs-sieve/issues)
+- Discussions: [GitHub Discussions](https://github.com/Oluwatunmise-olat/mcp-server-logs-sieve/discussions)
