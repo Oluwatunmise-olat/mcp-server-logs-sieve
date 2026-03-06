@@ -1,0 +1,3 @@
+- Cleanups
+- AWS cloudwatch implementation
+- Publish for npm
