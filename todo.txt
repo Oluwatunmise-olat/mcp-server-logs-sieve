@@ -1,2 +1,2 @@
-- AWS cloudwatch implementation
 - Publish for npm
+- Add doc guide for other agents
