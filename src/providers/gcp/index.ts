@@ -156,7 +156,7 @@ export class GcpLogProvider implements LogProvider {
         traceIds = [normalizeTraceId(params.scope, params.trace_id)];
       } else {
         const seed = await this.queryLogs({
-          project_id: params.scope,
+          scope: params.scope,
           start_time: params.start_time,
           end_time: params.end_time,
           text_filter: params.text_filter,

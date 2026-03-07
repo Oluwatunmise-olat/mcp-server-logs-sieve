@@ -136,7 +136,7 @@ export class AwsLogProvider implements LogProvider {
       traceIds = [params.trace_id];
     } else {
       const seed = await this.queryLogs({
-        project_id: params.scope,
+        scope: params.scope,
         log_name: logGroupName,
         start_time: params.start_time,
         end_time: params.end_time,

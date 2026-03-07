@@ -1,6 +1,6 @@
 import { Entry } from "@google-cloud/logging";
 
-import { LogEntry, QueryParams } from "../types.js";
+import { LogEntry, QueryParams } from "../providers/types.js";
 
 export function toLogEntry(entry: Entry): LogEntry {
   const m = entry.metadata;
