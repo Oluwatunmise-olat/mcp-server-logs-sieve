@@ -11,7 +11,7 @@ export function registerQueryLogs(server: McpServer, provider: LogProvider) {
     {
       description: "Search and filter log entries by severity, time range, text patterns, and resource type",
       inputSchema: {
-        scope: z.string().describe("GCP project ID, or AWS region (e.g. us-east-1)"),
+        scope: z.string().describe("GCP project ID, AWS region (e.g. us-east-1), or Azure Log Analytics workspace ID"),
         severity: z.enum(["DEBUG", "INFO", "NOTICE", "WARNING", "ERROR", "CRITICAL", "ALERT", "EMERGENCY"]).optional().describe("Minimum severity"),
         start_time: z.string().optional().describe("Start time - ISO 8601 or relative like 1h, 30m, 7d (defaults to 1h)"),
         end_time: z.string().optional().describe("End time - ISO 8601, defaults to now"),

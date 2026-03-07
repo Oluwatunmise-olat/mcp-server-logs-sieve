@@ -15,7 +15,7 @@ export function registerSummarizeLogs(
       description:
         "Summarize and aggregate log entries - severity counts, top error patterns, time range",
       inputSchema: {
-        scope: z.string().describe("GCP project ID, or AWS region (e.g. us-east-1)"),
+        scope: z.string().describe("GCP project ID, AWS region (e.g. us-east-1), or Azure Log Analytics workspace ID"),
         severity: z.enum(["DEBUG", "INFO", "NOTICE", "WARNING", "ERROR", "CRITICAL", "ALERT", "EMERGENCY"]).optional().describe("Minimum severity"),
         start_time: z
           .string()

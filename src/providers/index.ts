@@ -5,13 +5,12 @@ import { LogProvider } from "./types.js";
 import "./gcp/auth.js";
 import { GcpLogProvider } from "./gcp/index.js";
 import { AwsLogProvider } from "./aws/index.js";
+import { AzureLogProvider } from "./azure/index.js";
 
 const registry: Record<Provider, () => LogProvider> = {
   [Providers.GCP]: () => container.resolve(GcpLogProvider),
   [Providers.AWS]: () => new AwsLogProvider(),
-  [Providers.AZURE]: () => {
-    throw new Error("Azure not implemented yet.");
-  },
+  [Providers.AZURE]: () => new AzureLogProvider(),
   [Providers.DATADOG]: () => {
     throw new Error("Datadog not implemented yet.");
   },
@@ -20,9 +19,6 @@ const registry: Record<Provider, () => LogProvider> = {
   },
   [Providers.ELASTICSEARCH]: () => {
     throw new Error("Elasticsearch not implemented yet.");
-  },
-  [Providers.OPENSEARCH]: () => {
-    throw new Error("Opensearch not implemented yet.");
   },
 };
 
