@@ -2,8 +2,6 @@
 - Add doc guide for other agents
 
 Providers to add:
-- Azure Monitor
 - Datadog
 - Grafana Loki
 - Elasticsearch
-- OpenSearch
