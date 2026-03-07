@@ -12,7 +12,7 @@ export function registerListLogSources(
     {
       description: "List available log names and resource types in a project",
       inputSchema: {
-        scope: z.string().describe("GCP project ID, AWS region (e.g. us-east-1), or Azure Log Analytics workspace ID"),
+        scope: z.string().describe("GCP project ID, AWS region (e.g. us-east-1), Azure Log Analytics workspace ID, or Loki base URL"),
       },
     },
     async (params) => {

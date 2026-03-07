@@ -15,7 +15,7 @@ export function registerSummarizeLogs(
       description:
         "Summarize and aggregate log entries - severity counts, top error patterns, time range",
       inputSchema: {
-        scope: z.string().describe("GCP project ID, AWS region (e.g. us-east-1), or Azure Log Analytics workspace ID"),
+        scope: z.string().describe("GCP project ID, AWS region (e.g. us-east-1), Azure Log Analytics workspace ID, or Loki base URL"),
         severity: z.enum(["DEBUG", "INFO", "NOTICE", "WARNING", "ERROR", "CRITICAL", "ALERT", "EMERGENCY"]).optional().describe("Minimum severity"),
         start_time: z
           .string()
@@ -23,8 +23,8 @@ export function registerSummarizeLogs(
           .describe("Start time - ISO 8601 or relative (defaults to 6h)"),
         end_time: z.string().optional().describe("End time - ISO 8601"),
         text_filter: z.string().optional().describe("Text to search for"),
-        resource_type: z.string().optional().describe("Resource type"),
-        log_name: z.string().optional().describe("GCP log name or AWS log group name (required for AWS)"),
+        resource_type: z.string().optional().describe("GCP resource type, AWS log group name for traces, Azure table hint, or Loki label matcher (e.g. app=payments)"),
+        log_name: z.string().optional().describe("GCP log name, AWS log group name (required for AWS), Azure table name, or Loki job/raw selector"),
         limit: z
           .number()
           .min(1)

@@ -1,7 +1,9 @@
 - Publish for npm
-- Add doc guide for other agents
+- Add doc guide for other agents and providers
 
 Providers to add:
 - Datadog
-- Grafana Loki
 - Elasticsearch
+
+
+- Loki TODO (Remeber to implement api call retry)
