@@ -9,7 +9,7 @@ import {
   normalizeLokiBaseUrl,
   normalizeLokiMessageKey,
 } from "../../utils/loki.js";
-import { LokiApiEndpoint } from "./constants.js";
+import { LOKI_API_TIMEOUT_MS, LokiApiEndpoint } from "./constants.js";
 
 export class LokiLogProvider implements LogProvider {
   readonly id = "loki";
@@ -222,6 +222,7 @@ export class LokiLogProvider implements LogProvider {
 
       const res = await axios.get(endpoint, {
         headers,
+        timeout: LOKI_API_TIMEOUT_MS,
         params: {
           query: params.query,
           limit: params.limit,
@@ -275,7 +276,10 @@ export class LokiLogProvider implements LogProvider {
 
       const headers = this.authHeaders();
 
-      const res = await axios.get(endpoint, { headers });
+      const res = await axios.get(endpoint, {
+        headers,
+        timeout: LOKI_API_TIMEOUT_MS,
+      });
 
       const json = res.data;
 
