@@ -1,11 +1,22 @@
-import { LogsQueryClient, LogsTable } from "@azure/monitor-query-logs";
+import {
+  LogsQueryClient,
+  LogsQueryResultStatus,
+  LogsTable,
+} from "@azure/monitor-query-logs";
 import { DefaultAzureCredential } from "@azure/identity";
 
-import { LogProvider, QueryParams, TraceParams } from "../types.js";
+import {
+  LogProvider,
+  QueryParams,
+  TraceParams,
+  TraceResult,
+} from "../types.js";
 import {
   toLogEntry,
   buildAzureQuery,
   normalizeMessage,
+  escapeSingleQuotedKqlStringLiteral,
+  sanitizeTableName,
 } from "../../utils/azure.js";
 
 export class AzureLogProvider implements LogProvider {
@@ -30,17 +41,25 @@ export class AzureLogProvider implements LogProvider {
     };
 
     try {
-      const result = (await this.client.queryWorkspace(
+      const result = await this.client.queryWorkspace(
         params.scope,
         query,
         timeRange,
-      )) as any;
+      );
 
-      if (result.status === "Failed") {
-        throw new Error(result.partialError?.message || "query failed");
+      if (
+        result.status !== LogsQueryResultStatus.Success &&
+        result.status !== LogsQueryResultStatus.PartialFailure
+      ) {
+        throw new Error("query failed");
       }
 
-      const logsTable = result.tables?.[0] as LogsTable | undefined;
+      const tables =
+        result.status === LogsQueryResultStatus.PartialFailure
+          ? result.partialTables
+          : result.tables;
+
+      const logsTable = tables?.[0] as LogsTable | undefined;
 
       if (!logsTable) return [];
 
@@ -96,65 +115,91 @@ export class AzureLogProvider implements LogProvider {
     };
   }
 
-  async listSources(_scope: string) {
-    const commonTables = [
-      "AppTraces",
-      "AppExceptions",
-      "AppRequests",
-      "AppDependencies",
-      "AppEvents",
-      "ContainerLog",
-      "AzureActivity",
-      "AzureDiagnostics",
-    ];
+  async listSources(scope: string) {
+    const query = `union withsource=TableName *
+      | where TimeGenerated > ago(7d)
+      | summarize count() by TableName
+      | order by count_ desc`;
 
-    return commonTables.map((table) => ({
-      type: "log_name" as const,
-      name: table,
-      display_name: table,
-    }));
+    const timeRange = {
+      startTime: new Date(Date.now() - 7 * 24 * 3600000),
+      endTime: new Date(),
+    };
+
+    try {
+      const result = await this.client.queryWorkspace(
+        scope,
+        query,
+        timeRange,
+      );
+
+      if (
+        result.status !== LogsQueryResultStatus.Success &&
+        result.status !== LogsQueryResultStatus.PartialFailure
+      ) {
+        throw new Error("query failed");
+      }
+
+      const tables =
+        result.status === LogsQueryResultStatus.PartialFailure
+          ? result.partialTables
+          : result.tables;
+
+      const logsTable = tables?.[0] as LogsTable | undefined;
+
+      if (!logsTable) return [];
+
+      return logsTable.rows.map((row) => {
+        const name = String(row[0] ?? "");
+
+        return {
+          type: "log_name" as const,
+          name,
+          display_name: name,
+        };
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      throw new Error(`Azure listSources failed: ${message}`);
+    }
   }
 
   async traceRequests(params: TraceParams) {
-    const table = params.resource_type || "AppRequests";
+    const table = sanitizeTableName(params.resource_type || "AppRequests");
 
     let operationIds: string[] = [];
 
     if (params.trace_id) {
       operationIds = [params.trace_id];
     } else {
-      const seed = await this.queryLogs({
+      const seedEntries = await this.queryLogs({
         scope: params.scope,
         log_name: table,
         start_time: params.start_time,
         end_time: params.end_time,
         text_filter: params.text_filter,
+        severity: params.severity,
         limit: params.limit || 50,
       });
 
-      const seen = new Set<string>();
+      const uniqueOperationIds = new Set<string>();
 
-      for (const entry of seed) {
-        if (entry.trace_id) seen.add(entry.trace_id);
+      for (const entry of seedEntries) {
+        if (entry.trace_id) uniqueOperationIds.add(entry.trace_id);
       }
 
-      operationIds = [...seen];
+      operationIds = [...uniqueOperationIds];
     }
 
     if (!operationIds.length) return [];
 
     operationIds = operationIds.slice(0, 5);
 
-    const results: {
-      trace_id: string;
-      entries: any[];
-      services: string[];
-      duration_ms: number;
-    }[] = [];
+    const traceResults: TraceResult[] = [];
 
-    for (const opId of operationIds) {
+    for (const operationId of operationIds) {
       try {
-        const query = `${table} | where OperationId == "${opId}" | order by TimeGenerated asc`;
+        const query = `${table} | where OperationId == '${escapeSingleQuotedKqlStringLiteral(operationId)}' | order by TimeGenerated asc`;
 
         const timeRange = {
           startTime: params.start_time
@@ -163,13 +208,25 @@ export class AzureLogProvider implements LogProvider {
           endTime: params.end_time ? new Date(params.end_time) : new Date(),
         };
 
-        const result = (await this.client.queryWorkspace(
+        const result = await this.client.queryWorkspace(
           params.scope,
           query,
           timeRange,
-        )) as any;
+        );
 
-        const resultTable = result.tables?.[0] as LogsTable | undefined;
+        if (
+          result.status !== LogsQueryResultStatus.Success &&
+          result.status !== LogsQueryResultStatus.PartialFailure
+        ) {
+          continue;
+        }
+
+        const tables =
+          result.status === LogsQueryResultStatus.PartialFailure
+            ? result.partialTables
+            : result.tables;
+
+        const resultTable = tables?.[0] as LogsTable | undefined;
 
         const logEntries = resultTable
           ? resultTable.rows.map((row) => toLogEntry(row, resultTable))
@@ -178,15 +235,15 @@ export class AzureLogProvider implements LogProvider {
         let durationMs = 0;
 
         if (logEntries.length > 1) {
-          const first = new Date(logEntries[0].timestamp).getTime();
-          const last = new Date(
+          const firstEntry = new Date(logEntries[0].timestamp).getTime();
+          const lastEntry = new Date(
             logEntries[logEntries.length - 1].timestamp,
           ).getTime();
-          durationMs = last - first;
+          durationMs = lastEntry - firstEntry;
         }
 
-        results.push({
-          trace_id: opId,
+        traceResults.push({
+          trace_id: operationId,
           entries: logEntries,
           services: [table],
           duration_ms: durationMs,
@@ -196,6 +253,6 @@ export class AzureLogProvider implements LogProvider {
       }
     }
 
-    return results;
+    return traceResults;
   }
 }

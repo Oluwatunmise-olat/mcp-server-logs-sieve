@@ -15,7 +15,7 @@ export function registerTraceRequest(
       description:
         "Trace a request flow across services. Pass a trace_id directly, or use filters to find matching logs and automatically extract traces from them.",
       inputSchema: {
-        scope: z.string().describe("GCP project ID, or AWS region (e.g. us-east-1)"),
+        scope: z.string().describe("GCP project ID, AWS region (e.g. us-east-1), or Azure Log Analytics workspace ID"),
         trace_id: z.string().optional().describe("Trace ID if known"),
         start_time: z
           .string()
