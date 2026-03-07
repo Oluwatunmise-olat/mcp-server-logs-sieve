@@ -57,6 +57,11 @@ export interface TraceResult {
   duration_ms: number;
 }
 
+export interface LokiStream {
+  stream: Record<string, string>;
+  values: Array<[string, string]>;
+}
+
 export interface LogProvider {
   readonly id: string;
   readonly name: string;

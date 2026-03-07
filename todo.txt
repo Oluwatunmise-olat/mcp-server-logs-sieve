@@ -3,5 +3,7 @@
 
 Providers to add:
 - Datadog
-- Grafana Loki
 - Elasticsearch
+
+
+- Loki TODO (Remeber to implement api call retry)
