@@ -9,8 +9,20 @@ import { AwsLogProvider } from "./aws/index.js";
 const registry: Record<Provider, () => LogProvider> = {
   [Providers.GCP]: () => container.resolve(GcpLogProvider),
   [Providers.AWS]: () => new AwsLogProvider(),
-  azure: function (): LogProvider {
-    throw new Error("Azure not implemented.");
+  [Providers.AZURE]: () => {
+    throw new Error("Azure not implemented yet.");
+  },
+  [Providers.DATADOG]: () => {
+    throw new Error("Datadog not implemented yet.");
+  },
+  [Providers.LOKI]: () => {
+    throw new Error("Loki not implemented yet.");
+  },
+  [Providers.ELASTICSEARCH]: () => {
+    throw new Error("Elasticsearch not implemented yet.");
+  },
+  [Providers.OPENSEARCH]: () => {
+    throw new Error("Opensearch not implemented yet.");
   },
 };
 

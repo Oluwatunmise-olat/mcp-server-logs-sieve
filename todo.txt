@@ -1,4 +1,9 @@
 - Publish for npm
 - Add doc guide for other agents
-- Write tests
-- Add gh actions
+
+Providers to add:
+- Azure Monitor
+- Datadog
+- Grafana Loki
+- Elasticsearch
+- OpenSearch
