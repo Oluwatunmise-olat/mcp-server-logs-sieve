@@ -22,8 +22,8 @@ export function toLogEntry(entry: Entry): LogEntry {
 export function buildFilter(params: QueryParams): string {
   const parts: string[] = [];
 
-  if (params.project_id)
-    parts.push(`resource.labels.project_id = "${params.project_id}"`);
+  if (params.scope)
+    parts.push(`resource.labels.project_id = "${params.scope}"`);
 
   if (params.severity) parts.push(`severity >= ${params.severity}`);
 
@@ -44,7 +44,7 @@ export function buildFilter(params: QueryParams): string {
   if (params.log_name) {
     const logName = params.log_name.startsWith("projects/")
       ? params.log_name
-      : `projects/${params.project_id}/logs/${params.log_name}`;
+      : `projects/${params.scope}/logs/${params.log_name}`;
     parts.push(`logName = "${logName}"`);
   }
 

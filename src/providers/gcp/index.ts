@@ -43,7 +43,7 @@ export class GcpLogProvider implements LogProvider {
   async queryLogs(params: QueryParams): Promise<LogEntry[]> {
     try {
       const [entries] = await this.loggingForProject(
-        params.project_id,
+        params.scope,
       ).getEntries({
         filter: buildFilter(params),
         pageSize: params.limit || 50,
@@ -148,15 +148,15 @@ export class GcpLogProvider implements LogProvider {
 
   async traceRequests(params: TraceParams): Promise<TraceResult[]> {
     try {
-      const logging = this.loggingForProject(params.project_id);
+      const logging = this.loggingForProject(params.scope);
 
       let traceIds: string[] = [];
 
       if (params.trace_id) {
-        traceIds = [normalizeTraceId(params.project_id, params.trace_id)];
+        traceIds = [normalizeTraceId(params.scope, params.trace_id)];
       } else {
         const seed = await this.queryLogs({
-          project_id: params.project_id,
+          project_id: params.scope,
           start_time: params.start_time,
           end_time: params.end_time,
           text_filter: params.text_filter,
@@ -180,7 +180,7 @@ export class GcpLogProvider implements LogProvider {
 
       for (const traceId of traceIds) {
         const filter = buildTraceFilter(
-          params.project_id,
+          params.scope,
           traceId,
           params.start_time,
           params.end_time,

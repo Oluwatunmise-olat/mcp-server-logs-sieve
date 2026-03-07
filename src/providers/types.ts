@@ -11,7 +11,7 @@ export interface LogEntry {
 }
 
 export interface QueryParams {
-  project_id: string;
+  scope: string;
   resource_type?: string;
   start_time?: string;
   end_time?: string;
@@ -40,7 +40,7 @@ export interface LogSource {
 }
 
 export interface TraceParams {
-  project_id: string;
+  scope: string;
   trace_id?: string;
   start_time?: string;
   end_time?: string;

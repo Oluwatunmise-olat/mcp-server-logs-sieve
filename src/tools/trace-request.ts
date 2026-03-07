@@ -15,7 +15,7 @@ export function registerTraceRequest(
       description:
         "Trace a request flow across services. Pass a trace_id directly, or use filters to find matching logs and automatically extract traces from them.",
       inputSchema: {
-        project_id: z.string().describe("Cloud project ID"),
+        scope: z.string().describe("GCP project ID, or AWS region (e.g. us-east-1)"),
         trace_id: z.string().optional().describe("Trace ID if known"),
         start_time: z
           .string()
@@ -27,7 +27,7 @@ export function registerTraceRequest(
           .optional()
           .describe("Text to search for (e.g. user ID, endpoint, error message)"),
         severity: z.enum(["DEBUG", "INFO", "NOTICE", "WARNING", "ERROR", "CRITICAL", "ALERT", "EMERGENCY"]).optional().describe("Minimum severity"),
-        resource_type: z.string().optional().describe("Resource type"),
+        resource_type: z.string().optional().describe("GCP resource type, or AWS log group name (required for AWS)"),
         limit: z
           .number()
           .min(1)

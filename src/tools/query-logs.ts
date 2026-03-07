@@ -11,13 +11,13 @@ export function registerQueryLogs(server: McpServer, provider: LogProvider) {
     {
       description: "Search and filter log entries by severity, time range, text patterns, and resource type",
       inputSchema: {
-        project_id: z.string().describe("Cloud project ID"),
+        scope: z.string().describe("GCP project ID, or AWS region (e.g. us-east-1)"),
         severity: z.enum(["DEBUG", "INFO", "NOTICE", "WARNING", "ERROR", "CRITICAL", "ALERT", "EMERGENCY"]).optional().describe("Minimum severity"),
         start_time: z.string().optional().describe("Start time - ISO 8601 or relative like 1h, 30m, 7d (defaults to 1h)"),
         end_time: z.string().optional().describe("End time - ISO 8601, defaults to now"),
         text_filter: z.string().optional().describe("Text to search for in log messages"),
-        resource_type: z.string().optional().describe("Resource type e.g. cloud_function, gce_instance"),
-        log_name: z.string().optional().describe("Specific log name"),
+        resource_type: z.string().optional().describe("GCP resource type e.g. cloud_function, gce_instance"),
+        log_name: z.string().optional().describe("GCP log name or AWS log group name (required for AWS)"),
         limit: z.number().min(1).max(500).optional().describe("Max entries to return (default 50, max 500)"),
       },
     },

@@ -1,8 +1,6 @@
 import { FilteredLogEvent } from "@aws-sdk/client-cloudwatch-logs";
 
-import { LogEntry } from "../types.js";
-
-export function toLogEntry(event: FilteredLogEvent, logGroupName: string): LogEntry {
+export function toLogEntry(event: FilteredLogEvent, logGroupName: string) {
   const ts = event.timestamp ? new Date(event.timestamp).toISOString() : "";
 
   const message = event.message || "";
@@ -20,7 +18,16 @@ export function toLogEntry(event: FilteredLogEvent, logGroupName: string): LogEn
   };
 }
 
-export function detectSeverity(message: string): string {
+export function normalizeMessageKey(message: string) {
+  return message
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 120)
+    .replace(/[0-9a-f-]{8,}/gi, "*")
+    .replace(/\b\d+\b/g, "N");
+}
+
+export function detectSeverity(message: string) {
   const upper = message.toUpperCase();
 
   if (upper.includes("ERROR") || upper.includes("EXCEPTION")) return "ERROR";
