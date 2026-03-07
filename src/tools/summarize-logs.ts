@@ -15,7 +15,7 @@ export function registerSummarizeLogs(
       description:
         "Summarize and aggregate log entries - severity counts, top error patterns, time range",
       inputSchema: {
-        project_id: z.string().describe("Cloud project ID"),
+        scope: z.string().describe("GCP project ID, or AWS region (e.g. us-east-1)"),
         severity: z.enum(["DEBUG", "INFO", "NOTICE", "WARNING", "ERROR", "CRITICAL", "ALERT", "EMERGENCY"]).optional().describe("Minimum severity"),
         start_time: z
           .string()
@@ -24,7 +24,7 @@ export function registerSummarizeLogs(
         end_time: z.string().optional().describe("End time - ISO 8601"),
         text_filter: z.string().optional().describe("Text to search for"),
         resource_type: z.string().optional().describe("Resource type"),
-        log_name: z.string().optional().describe("Specific log name"),
+        log_name: z.string().optional().describe("GCP log name or AWS log group name (required for AWS)"),
         limit: z
           .number()
           .min(1)

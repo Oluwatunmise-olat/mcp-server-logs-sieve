@@ -1,5 +1,7 @@
 import "reflect-metadata";
 
+import { consola } from "consola";
+
 import { createProvider } from "./providers/index.js";
 import { parseRelativeTime } from "./utils/time.js";
 import { formatEntries, formatSummary, formatTrace } from "./utils/sanitize.js";
@@ -19,21 +21,21 @@ for (let i = 3; i < process.argv.length; i += 2) {
 }
 
 if (!args.provider) {
-  console.error("--provider is required.");
+  consola.error("--provider is required.");
   process.exit(1);
 }
 
-const projectId = args.project;
+const scope = args.scope;
 
-if (!projectId) {
-  console.error("--project is required.");
+if (!scope) {
+  consola.error("--scope is required.");
   process.exit(1);
 }
 
 const provider = createProvider(args.provider);
 
 const params = {
-  project_id: projectId,
+  scope,
   severity: args.severity,
   start_time: args.last ? parseRelativeTime(args.last) : undefined,
   end_time: args.end ? parseRelativeTime(args.end) : undefined,
@@ -46,14 +48,14 @@ const params = {
 if (subcommand === "query") {
   const entries = await provider.queryLogs(params);
 
-  console.log(formatEntries(entries));
+  consola.log(formatEntries(entries));
 } else if (subcommand === "summarize") {
   const summary = await provider.summarizeLogs(params);
 
-  console.log(formatSummary(summary));
+  consola.log(formatSummary(summary));
 } else if (subcommand === "trace") {
   const traces = await provider.traceRequests({
-    project_id: projectId,
+    scope,
     trace_id: args.trace,
     start_time: args.last ? parseRelativeTime(args.last) : undefined,
     end_time: args.end ? parseRelativeTime(args.end) : undefined,
@@ -63,20 +65,20 @@ if (subcommand === "query") {
     limit: args.limit ? parseInt(args.limit, 10) : undefined,
   });
 
-  console.log(formatTrace(traces));
+  consola.log(formatTrace(traces));
 } else if (subcommand === "sources") {
-  const sources = await provider.listSources(projectId);
+  const sources = await provider.listSources(scope);
 
   const text = sources.length
     ? sources.map((s) => `[${s.type}] ${s.name}`).join("\n")
     : "No log sources found.";
 
-  console.log(text);
+  consola.log(text);
 } else {
-  console.error(`Unknown command: ${subcommand}`);
+  consola.error(`Unknown command: ${subcommand}`);
 
-  console.error(
-    "Usage: mcp-server-logs-sieve <query|summarize|trace|sources> --provider <provider> --project <id> [options]",
+  consola.info(
+    "Usage: mcp-server-logs-sieve <query|summarize|trace|sources> --provider <provider> --scope <value> [options]",
   );
 
   process.exit(1);

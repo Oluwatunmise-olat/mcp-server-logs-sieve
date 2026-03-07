@@ -4,12 +4,11 @@ import { Providers, Provider } from "../constants.js";
 import { LogProvider } from "./types.js";
 import "./gcp/auth.js";
 import { GcpLogProvider } from "./gcp/index.js";
+import { AwsLogProvider } from "./aws/index.js";
 
 const registry: Record<Provider, () => LogProvider> = {
   [Providers.GCP]: () => container.resolve(GcpLogProvider),
-  aws: function (): LogProvider {
-    throw new Error("AWS not implemented.");
-  },
+  [Providers.AWS]: () => new AwsLogProvider(),
   azure: function (): LogProvider {
     throw new Error("Azure not implemented.");
   },
