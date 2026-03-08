@@ -1,7 +1,5 @@
-- Publish for npm
-
 Providers to add:
 - Datadog
 
 
-- Loki TODO (Remeber to implement api call retry)
+- Loki TODO (Remember to implement api call retry)

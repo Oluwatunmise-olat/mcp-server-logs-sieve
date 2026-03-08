@@ -1,5 +1,10 @@
 # mcp-server-logs-sieve
 
+[![npm version](https://img.shields.io/npm/v/mcp-server-logs-sieve.svg)](https://www.npmjs.com/package/mcp-server-logs-sieve)
+[![npm downloads](https://img.shields.io/npm/dm/mcp-server-logs-sieve.svg)](https://www.npmjs.com/package/mcp-server-logs-sieve)
+[![CI](https://img.shields.io/github/actions/workflow/status/Oluwatunmise-olat/mcp-server-logs-sieve/ci.yml?label=CI)](https://github.com/Oluwatunmise-olat/mcp-server-logs-sieve/actions/workflows/ci.yml)
+[![license](https://img.shields.io/npm/l/mcp-server-logs-sieve.svg)](https://www.npmjs.com/package/mcp-server-logs-sieve)
+
 `mcp-server-logs-sieve` is an MCP server that lets AI assistants query logs directly from your observability backend.
 
 Ask debugging questions in plain language, and let Logs Sieve pull the exact logs and context for you.
