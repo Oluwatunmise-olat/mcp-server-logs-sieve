@@ -39,6 +39,12 @@ export interface LogSource {
   display_name?: string;
 }
 
+export interface ElasticsearchListSourcesAggregations {
+  unique_sources?: {
+    buckets?: Array<{ key: string | number }>;
+  };
+}
+
 export interface TraceParams {
   scope: string;
   trace_id?: string;

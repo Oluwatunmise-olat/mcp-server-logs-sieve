@@ -14,6 +14,14 @@ Currently supports **Google Cloud Logging**, with other cloud platforms in view.
 
 ## Getting started
 
+**Node.js requirement:**
+
+```bash
+nvm use
+```
+
+This project targets Node.js 20+.
+
 **Install dependencies and build:**
 
 ```bash
@@ -28,11 +36,21 @@ npm run build
   "mcpServers": {
     "logs-sieve": {
       "command": "npx",
-      "args": ["mcp-server-logs-sieve", "--provider", "gcp"] // If using GCP use gcp else change provider to either aws or azure
+      "args": ["-y", "node@20", "./bin/mcp-server-logs-sieve.js", "--provider", "gcp"]
     }
   }
 }
 ```
+
+Change `gcp` to `aws`, `azure`, `loki`, or `elasticsearch` for other providers.
+
+For Elasticsearch, you can explicitly set API compatibility header version:
+
+```bash
+export ELASTICSEARCH_COMPAT_VERSION=8
+```
+
+Allowed values: `7`, `8`, `9` (default: `8`).
 
 Once connected, your assistant can call the tools directly without any extra setup on your end.
 
