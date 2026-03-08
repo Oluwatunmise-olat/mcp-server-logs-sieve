@@ -87,11 +87,6 @@ export class LokiLogProvider implements LogProvider {
         `${LokiApiEndpoint.LabelValuesBase}/app/values`,
       );
 
-      console.log("[loki] listSources:counts>>", {
-        jobs: jobs.length,
-        apps: apps.length,
-      });
-
       if (jobs.length === 0 && apps.length === 0) {
         throw new Error("no data returned");
       }
@@ -235,11 +230,6 @@ export class LokiLogProvider implements LogProvider {
       });
 
       const json = res.data;
-
-      console.log("[loki] queryRange:response>>>", {
-        status: res.status,
-        resultType: json?.data?.resultType,
-      });
 
       if (res.status < 200 || res.status >= 300 || json.status !== "success") {
         const message = json?.error || `${res.status}`;
