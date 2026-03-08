@@ -1,6 +1,7 @@
 import {
   normalizeElasticsearchBaseUrl,
   normalizeElasticsearchMessageKey,
+  resolveElasticsearchCompatVersion,
 } from "../src/utils/elasticsearch.js";
 
 describe("normalizeElasticsearchBaseUrl", () => {
@@ -27,5 +28,24 @@ describe("normalizeElasticsearchMessageKey", () => {
     );
 
     expect(a).toBe(b);
+  });
+});
+
+describe("resolveElasticsearchCompatVersion", () => {
+  it("Should default to 8 when value is empty", () => {
+    expect(resolveElasticsearchCompatVersion(undefined)).toBe(8);
+    expect(resolveElasticsearchCompatVersion("")).toBe(8);
+  });
+
+  it("Should accept supported compatibility values", () => {
+    expect(resolveElasticsearchCompatVersion("7")).toBe(7);
+    expect(resolveElasticsearchCompatVersion("8")).toBe(8);
+    expect(resolveElasticsearchCompatVersion("9")).toBe(9);
+  });
+
+  it("Should throw for invalid compatibility values", () => {
+    expect(() => resolveElasticsearchCompatVersion("10")).toThrow(
+      "Invalid ELASTICSEARCH_COMPAT_VERSION (10). Use one of: 7, 8, 9.",
+    );
   });
 });

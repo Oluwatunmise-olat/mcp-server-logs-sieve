@@ -5,8 +5,10 @@ import {
 } from "@elastic/elasticsearch/lib/api/types";
 
 import {
+  createCompatTransport,
   normalizeElasticsearchBaseUrl,
   normalizeElasticsearchMessageKey,
+  resolveElasticsearchCompatVersion,
 } from "../../utils/elasticsearch.js";
 import {
   ElasticsearchListSourcesAggregations,
@@ -411,7 +413,28 @@ export class ElasticsearchProvider implements LogProvider {
   private async getClient(scope: string) {
     const baseUrl = normalizeElasticsearchBaseUrl(scope);
 
-    const client = new Client({ node: baseUrl });
+    const compatVersion = resolveElasticsearchCompatVersion(
+      process.env.ELASTICSEARCH_COMPAT_VERSION,
+    );
+
+    const apiKey = process.env.ELASTICSEARCH_API_KEY;
+
+    const username = process.env.ELASTICSEARCH_USERNAME;
+
+    const password = process.env.ELASTICSEARCH_PASSWORD;
+
+    const clientOptions: ConstructorParameters<typeof Client>[0] = {
+      node: baseUrl,
+      Transport: createCompatTransport(compatVersion),
+    };
+
+    if (apiKey) {
+      clientOptions.auth = { apiKey };
+    } else if (username && password) {
+      clientOptions.auth = { username, password };
+    }
+
+    const client = new Client(clientOptions);
 
     try {
       await client.ping();

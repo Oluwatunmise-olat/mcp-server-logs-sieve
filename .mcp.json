@@ -1,8 +1,8 @@
 {
   "mcpServers": {
     "logs-sieve": {
-      "command": "node",
-      "args": ["./bin/mcp-server-logs-sieve.js", "--provider", "gcp"]
+      "command": "npx",
+      "args": ["-y", "node@20", "./bin/mcp-server-logs-sieve.js", "--provider", "gcp"]
     }
   }
 }
