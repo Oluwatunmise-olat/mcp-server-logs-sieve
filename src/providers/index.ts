@@ -7,6 +7,7 @@ import { GcpLogProvider } from "./gcp/index.js";
 import { AwsLogProvider } from "./aws/index.js";
 import { AzureLogProvider } from "./azure/index.js";
 import { LokiLogProvider } from "./loki/index.js";
+import { ElasticsearchProvider } from "./elasticsearch/index.js";
 
 const registry: Record<Provider, () => LogProvider> = {
   [Providers.GCP]: () => container.resolve(GcpLogProvider),
@@ -16,9 +17,7 @@ const registry: Record<Provider, () => LogProvider> = {
   [Providers.DATADOG]: () => {
     throw new Error("Datadog not implemented yet.");
   },
-  [Providers.ELASTICSEARCH]: () => {
-    throw new Error("Elasticsearch not implemented yet.");
-  },
+  [Providers.ELASTICSEARCH]: () => new ElasticsearchProvider(),
 };
 
 export function createProvider(provider: string): LogProvider {
