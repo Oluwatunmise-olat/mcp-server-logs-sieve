@@ -1,164 +1,88 @@
 # mcp-server-logs-sieve
 
-An MCP server that gives your AI coding assistant direct access to your cloud logs. Instead of copy-pasting log snippets into chat, you just ask questions and let the assistant pull what it needs.
+`mcp-server-logs-sieve` is an MCP server that lets AI assistants query logs directly from your observability backend.
 
-Built for debugging workflows. Things like:
+Ask debugging questions in plain language, and let Logs Sieve pull the exact logs and context for you.
 
-- _"show me wallet debit errors for user X in the last 6 hours"_
-- _"summarize what's been failing in the payments service today"_
-- _"trace the request flow around this failed transaction"_
+## Why this exists
 
-Currently supports **Google Cloud Logging**, with other cloud platforms in view.
+During incidents, a lot of time goes into repetitive steps:
 
----
+- finding the right log source
+- narrowing the time window
+- spotting recurring failure patterns
+- following one trace across services
 
-## Getting started
+Logs Sieve packages those workflows into four tools: `query_logs`, `summarize_logs`, `trace_request`, and `list_log_sources`.
 
-**Node.js requirement:**
+## Supported providers
 
-```bash
-nvm use
-```
+- Google Cloud Logging (`gcp`)
+- AWS CloudWatch Logs (`aws`)
+- Azure Monitor Logs (`azure`)
+- Grafana Loki (`loki`)
+- Elasticsearch (`elasticsearch`)
 
-This project targets Node.js 20+.
+Node.js 20+ is required.
 
-**Install dependencies and build:**
+## Quick MCP config
 
-```bash
-npm install
-npm run build
-```
-
-**Add it to your MCP client config** (e.g. `.mcp.json` in your project root, or `~/.claude/mcp.json` for Claude Code globally):
+Example `.mcp.json`:
 
 ```json
 {
   "mcpServers": {
     "logs-sieve": {
       "command": "npx",
-      "args": ["-y", "node@20", "./bin/mcp-server-logs-sieve.js", "--provider", "gcp"]
+      "args": ["-y", "mcp-server-logs-sieve@latest", "--provider", "gcp"]
     }
   }
 }
 ```
 
-Change `gcp` to `aws`, `azure`, `loki`, or `elasticsearch` for other providers.
+If you are running from this repo source directly, you can still use `node ./bin/mcp-server-logs-sieve.js --provider gcp`.
 
-For Elasticsearch, you can explicitly set API compatibility header version:
+After updating config, restart your MCP client and confirm with `/mcp`.
+
+## Provider auth and env vars
+
+See provider-specific setup and auth docs:
+
+- [GCP](docs/providers/gcp.md)
+- [AWS](docs/providers/aws.md)
+- [Azure](docs/providers/azure.md)
+- [Loki](docs/providers/loki.md)
+- [Elasticsearch](docs/providers/elasticsearch.md)
+
+For Elasticsearch API compatibility headers:
 
 ```bash
 export ELASTICSEARCH_COMPAT_VERSION=8
 ```
 
-Allowed values: `7`, `8`, `9` (default: `8`).
+## CLI usage
 
-Once connected, your assistant can call the tools directly without any extra setup on your end.
-
----
-
-## Authentication
-
-For GCP, the server uses [Application Default Credentials](https://cloud.google.com/docs/authentication/application-default-credentials). Run this once if you haven't already:
+The package also includes a CLI for direct terminal usage:
 
 ```bash
-gcloud auth application-default login
+mcp-server-logs-sieve query --provider gcp --scope my-project --last 1h --filter "payment failed"
+mcp-server-logs-sieve summarize --provider gcp --scope my-project --last 24h
+mcp-server-logs-sieve trace --provider gcp --scope my-project --trace <trace-id>
+mcp-server-logs-sieve sources --provider gcp --scope my-project
 ```
 
-If you're running inside GCP (Cloud Run, GCE, etc.), credentials are picked up automatically from the metadata server.
+## Documentation
 
----
+- [Docs home](docs/index.md)
+- [Getting started](docs/getting-started.md)
+- [Tool reference](docs/tools/query-logs.md)
+- [Troubleshooting](docs/troubleshooting.md)
+- [Compatibility matrix](docs/reference/compatibility.md)
 
-## Tools
+## Contributing
 
-All tools accept a `project_id` to target a specific GCP project. Time filters accept ISO 8601 timestamps or relative shorthands like `1h`, `30m`, `7d`.
+Contributions are welcome.
 
-| Tool               | What it does                                                                      |
-| ------------------ | --------------------------------------------------------------------------------- |
-| `query_logs`       | Search and filter log entries by severity, time, text, resource type, or log name |
-| `summarize_logs`   | Aggregate counts by severity and surface the top recurring patterns               |
-| `list_log_sources` | Discover what log names and resource types exist in a project                     |
-| `trace_request`    | Pull all logs for one or more traces, grouped and ordered by time                 |
-
-Sensitive values (tokens, connection strings, emails, IPs, card numbers, etc.) are automatically redacted before results are returned to the model.
-
----
-
-## CLI
-
-The same binary works as a command-line tool if you want to query logs outside of an AI session:
-
-```bash
-# Search logs
-node bin/mcp-server-logs-sieve.js query \
-  --provider gcp \
-  --project my-project-id \
-  --log_name payments \
-  --filter "xyz.failed" \
-  --last 2h
-
-# Summarize
-node bin/mcp-server-logs-sieve.js summarize \
-  --provider gcp \
-  --project my-project-id \
-  --last 24h
-
-# Trace a request
-node bin/mcp-server-logs-sieve.js trace \
-  --provider gcp \
-  --project my-project-id \
-  --trace <trace-id>
-
-# List available log sources
-node bin/mcp-server-logs-sieve.js sources \
-  --provider gcp \
-  --project my-project-id
-```
-
----
-
-## Example walkthrough
-
-This shows the full flow using a demo e-commerce order service with seeded bugs — duplicate charges, missing shipments, and price mismatches.
-
-**1. Add the config to your project**
-
-Drop a `.mcp.json` at your project root pointing at the server. If it's published to npm, `npx` is all you need:
-
-![MCP config](docs/images/gcp-order-flow-demo-config.png)
-
-**2. Start Claude Code — it picks up the MCP server automatically**
-
-On first launch you'll see a prompt confirming that MCP servers are connected and may execute tools on your behalf:
-
-![Claude Code launch with MCP](docs/images/step-1.png)
-
-**3. Confirm the server is connected with `/mcp`**
-
-Running `/mcp` lists all active servers. You should see `logs-sieve` with its tools ready:
-
-![MCP server list](docs/images/step-2.png)
-
-**4. Ask your debugging question in plain English**
-
-No special syntax — just describe what you're investigating:
-
-![Debug prompt](docs/images/step-3.png)
-
-**5. Claude asks permission before calling the tool**
-
-You stay in control. Approve once and it queries your logs:
-
-![Tool permission prompt](docs/images/step-4.png)
-
-**6. Results come back structured and ready to act on**
-
-The assistant surfaces the exact issues — which users were affected, what went wrong, and when:
-
-![Debug results](docs/images/step-5.png)
-
----
-
-## Feedback
-
-- Bug reports and feature requests: [GitHub Issues](https://github.com/Oluwatunmise-olat/mcp-server-logs-sieve/issues)
-- Questions and ideas: [GitHub Discussions](https://github.com/Oluwatunmise-olat/mcp-server-logs-sieve/discussions)
+- Start here: [CONTRIBUTING.md](CONTRIBUTING.md)
+- Issues: <https://github.com/Oluwatunmise-olat/mcp-server-logs-sieve/issues>
+- Discussions: <https://github.com/Oluwatunmise-olat/mcp-server-logs-sieve/discussions>

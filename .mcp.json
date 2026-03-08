@@ -2,7 +2,7 @@
   "mcpServers": {
     "logs-sieve": {
       "command": "npx",
-      "args": ["-y", "node@20", "./bin/mcp-server-logs-sieve.js", "--provider", "gcp"]
+      "args": ["-y", "mcp-server-logs-sieve@latest", "--provider", "gcp"]
     }
   }
 }
