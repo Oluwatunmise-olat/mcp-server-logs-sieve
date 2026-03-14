@@ -28,7 +28,13 @@ Logs Sieve packages those workflows into four tools: `query_logs`, `summarize_lo
 - Grafana Loki (`loki`)
 - Elasticsearch (`elasticsearch`)
 
-Node.js 20+ is required.
+## Prerequisites
+
+> **⚠️ Node.js 20 or above is required.**
+>
+> This package uses ES modules and dependencies that need Node.js 20+. If you see `ERR_MODULE_NOT_FOUND` errors, check your Node version with `node -v` and upgrade if needed.
+>
+> This applies whether you run via `npx`, install globally, or use from source.
 
 ## Quick MCP config
 
