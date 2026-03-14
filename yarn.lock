@@ -2932,10 +2932,6 @@ ee-first@1.1.1:
   resolved "https://registry.npmjs.org/ee-first/-/ee-first-1.1.1.tgz"
   integrity sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==
 
-elasticsearch@elastic/elasticsearch:
-  version "0.0.0"
-  resolved "https://codeload.github.com/elastic/elasticsearch/tar.gz/b2146405a927ab76fd0642fcd1d7f25372f49376"
-
 electron-to-chromium@^1.5.263:
   version "1.5.307"
   resolved "https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.5.307.tgz"
