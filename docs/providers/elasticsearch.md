@@ -55,9 +55,25 @@ Allowed values:
 - `8`
 - `9`
 
-Default is `8`.
+Default is `8`. **If you are on Elasticsearch 8.x, set this explicitly to avoid header negotiation errors.**
 
-Example:
+Via `.mcp.json` env (recommended):
+
+```json
+{
+  "mcpServers": {
+    "logs-sieve": {
+      "command": "npx",
+      "args": ["-y", "mcp-server-logs-sieve@latest", "--provider", "elasticsearch"],
+      "env": {
+        "ELASTICSEARCH_COMPAT_VERSION": "8"
+      }
+    }
+  }
+}
+```
+
+Or via shell:
 
 ```bash
 export ELASTICSEARCH_COMPAT_VERSION=8

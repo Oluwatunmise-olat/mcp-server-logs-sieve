@@ -47,6 +47,15 @@ Example `.mcp.json`:
 
 If you are running from this repo source directly, you can still use `node ./bin/mcp-server-logs-sieve.js --provider gcp`.
 
+**First-time setup:** On first use, `npx` needs to download and install the package (~40s). Claude Code may time out waiting for this. Run the following once in your terminal to prime the cache before adding it to your MCP config:
+
+```bash
+npx mcp-server-logs-sieve@latest --provider gcp
+# (Ctrl+C once it starts — you just need the install to complete)
+```
+
+After that, Claude Code will start the server instantly from the npx cache.
+
 After updating config, restart your MCP client and confirm with `/mcp`.
 
 ## Provider auth and env vars
@@ -80,6 +89,7 @@ mcp-server-logs-sieve sources --provider gcp --scope my-project
 
 - [Docs home](docs/index.md)
 - [Getting started](docs/getting-started.md)
+- [MCP client setup (Claude Code, Claude Desktop, Cursor, Windsurf)](docs/guides/mcp-clients.md)
 - [Tool reference](docs/tools/query-logs.md)
 - [Troubleshooting](docs/troubleshooting.md)
 - [Compatibility matrix](docs/reference/compatibility.md)

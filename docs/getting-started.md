@@ -89,6 +89,7 @@ Change the scope value for your provider:
 
 - Learn each tool in [Tools](./tools/query-logs.md)
 - Follow a realistic flow in [Debug Payment Failures](./guides/debug-payment-failures.md)
+- Set up a different MCP client: [MCP client setup](./guides/mcp-clients.md)
 - If something is off, check [Troubleshooting](./troubleshooting.md)
 
 ## Visual walkthrough (Claude Code)
