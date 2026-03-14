@@ -11,25 +11,23 @@ import { registerTraceRequest } from "./tools/trace-request.js";
 const providerIdx = process.argv.indexOf("--provider");
 
 const providerName =
-  providerIdx !== -1 ? process.argv[providerIdx + 1] : undefined;
-
-if (!providerName) {
-  console.error("--provider is required.");
-
-  process.exit(1);
-}
-
-const provider = createProvider(providerName);
+  providerIdx !== -1 ? process.argv[providerIdx + 1] : process.env.PROVIDER;
 
 const server = new McpServer({
   name: "mcp-server-logs-sieve",
   version: "1.0.0",
 });
 
-registerQueryLogs(server, provider);
-registerSummarizeLogs(server, provider);
-registerListLogSources(server, provider);
-registerTraceRequest(server, provider);
+if (providerName) {
+  const provider = createProvider(providerName);
+
+  registerQueryLogs(server, provider);
+  registerSummarizeLogs(server, provider);
+  registerListLogSources(server, provider);
+  registerTraceRequest(server, provider);
+} else {
+  console.error("--provider is required. Supported: gcp, aws, azure, loki, elasticsearch");
+}
 
 const transport = new StdioServerTransport();
 
