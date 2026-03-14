@@ -2,5 +2,10 @@
   "$schema": "https://glama.ai/mcp/schemas/server.json",
   "maintainers": [
     "Oluwatunmise-olat"
-  ]
+  ],
+  "build": {
+    "buildSteps": ["pnpm install", "pnpm run build"],
+    "cmdArguments": ["mcp-proxy", "node", "bin/mcp-server-logs-sieve.js", "--provider", "gcp"],
+    "nodeVersion": "24"
+  }
 }
