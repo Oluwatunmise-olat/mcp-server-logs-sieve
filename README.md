@@ -9,6 +9,8 @@
 
 Ask debugging questions in plain language, and let Logs Sieve pull the exact logs and context for you.
 
+[![mcp-server-logs-sieve MCP server](https://glama.ai/mcp/servers/Oluwatunmise-olat/mcp-server-logs-sieve/badges/card.svg)](https://glama.ai/mcp/servers/Oluwatunmise-olat/mcp-server-logs-sieve)
+
 ## Why this exists
 
 During incidents, a lot of time goes into repetitive steps:
