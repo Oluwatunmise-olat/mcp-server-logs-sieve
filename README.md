@@ -109,3 +109,8 @@ Contributions are welcome.
 - Start here: [CONTRIBUTING.md](CONTRIBUTING.md)
 - Issues: <https://github.com/Oluwatunmise-olat/mcp-server-logs-sieve/issues>
 - Discussions: <https://github.com/Oluwatunmise-olat/mcp-server-logs-sieve/discussions>
+
+## Hosted deployment
+
+A hosted deployment is available on [Fronteir AI](https://fronteir.ai/mcp/oluwatunmise-olat-mcp-server-logs-sieve).
+
