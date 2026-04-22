@@ -6,7 +6,8 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "mcp-server-logs-sieve": "./bin/mcp-server-logs-sieve.js"
+    "mcp-server-logs-sieve": "./bin/mcp-server-logs-sieve.js",
+    "mcp-server-logs-sieve-http": "./bin/mcp-server-logs-sieve-http.js"
   },
   "files": [
     "dist",

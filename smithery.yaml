@@ -1,0 +1,63 @@
+startCommand:
+  type: docker
+  configSchema:
+    type: object
+    properties:
+      provider:
+        type: string
+        description: "Cloud provider to use"
+        enum: [gcp, aws, azure, loki, elasticsearch]
+
+      googleApplicationCredentials:
+        type: string
+        description: "GCP service account JSON string (for gcp provider)"
+
+      awsAccessKeyId:
+        type: string
+        description: "AWS Access Key ID (for aws provider)"
+      awsSecretAccessKey:
+        type: string
+        description: "AWS Secret Access Key (for aws provider)"
+      awsSessionToken:
+        type: string
+        description: "AWS Session Token, optional (for aws provider)"
+
+      azureClientId:
+        type: string
+        description: "Azure Client ID (for azure provider)"
+      azureClientSecret:
+        type: string
+        description: "Azure Client Secret (for azure provider)"
+      azureTenantId:
+        type: string
+        description: "Azure Tenant ID (for azure provider)"
+
+      lokiBearerToken:
+        type: string
+        description: "Loki Bearer Token (for loki provider)"
+      lokiUsername:
+        type: string
+        description: "Loki Username, optional (for loki provider)"
+      lokiPassword:
+        type: string
+        description: "Loki Password, optional (for loki provider)"
+
+      elasticsearchApiKey:
+        type: string
+        description: "Elasticsearch API Key (for elasticsearch provider)"
+      elasticsearchUsername:
+        type: string
+        description: "Elasticsearch Username, optional (for elasticsearch provider)"
+      elasticsearchPassword:
+        type: string
+        description: "Elasticsearch Password, optional (for elasticsearch provider)"
+      elasticsearchCompatVersion:
+        type: string
+        description: "Elasticsearch compatibility version, optional"
+
+    required:
+      - provider
+
+  exampleConfig:
+    provider: gcp
+    googleApplicationCredentials: '{"type":"service_account","project_id":"my-project",...}'
