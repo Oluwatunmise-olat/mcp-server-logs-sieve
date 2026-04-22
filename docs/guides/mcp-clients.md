@@ -11,7 +11,7 @@
 
 ---
 
-## Claude Code
+## <img src="https://github.com/anthropics.png" width="20" style="vertical-align:middle"/> Claude Code
 
 Uses `.mcp.json` in your project root.
 
@@ -30,7 +30,7 @@ Restart Claude Code after editing. Confirm with `/mcp`.
 
 ---
 
-## Claude Desktop
+## <img src="https://github.com/anthropics.png" width="20" style="vertical-align:middle"/> Claude Desktop
 
 Config file location:
 
@@ -52,7 +52,7 @@ Restart Claude Desktop after saving.
 
 ---
 
-## Cursor
+## <img src="https://github.com/getcursor.png" width="20" style="vertical-align:middle"/> Cursor
 
 Uses `.cursor/mcp.json` in your project root (project-scoped) or `~/.cursor/mcp.json` (global).
 
@@ -71,7 +71,7 @@ Reload the MCP server from Cursor's MCP settings panel after saving.
 
 ---
 
-## Windsurf
+## <img src="https://github.com/codeium-ai.png" width="20" style="vertical-align:middle"/> Windsurf
 
 Config file location: `~/.codeium/windsurf/mcp_config.json`
 
@@ -126,3 +126,108 @@ Change the `--provider` arg and update any required env vars:
 | Elasticsearch | `elasticsearch` | Scope: Elasticsearch base URL. Optional: `ELASTICSEARCH_COMPAT_VERSION` |
 
 See [Provider docs](../providers/) for full auth details per provider.
+
+---
+
+## Config examples by provider
+
+### GCP
+
+```json
+{
+  "mcpServers": {
+    "logs-sieve": {
+      "command": "npx",
+      "args": ["-y", "mcp-server-logs-sieve@latest", "--provider", "gcp"],
+      "env": {
+        "GOOGLE_APPLICATION_CREDENTIALS": "/path/to/service-account.json"
+      }
+    }
+  }
+}
+```
+
+> If you're already authenticated via `gcloud auth application-default login`, the `env` field is not needed.
+
+---
+
+### AWS
+
+```json
+{
+  "mcpServers": {
+    "logs-sieve": {
+      "command": "npx",
+      "args": ["-y", "mcp-server-logs-sieve@latest", "--provider", "aws"],
+      "env": {
+        "AWS_ACCESS_KEY_ID": "AKIAIOSFODNN7EXAMPLE",
+        "AWS_SECRET_ACCESS_KEY": "your-secret-key",
+        "AWS_REGION": "us-east-1"
+      }
+    }
+  }
+}
+```
+
+> If you're using an AWS profile or instance role, omit the key env vars — the SDK picks them up automatically.
+
+---
+
+### Azure
+
+```json
+{
+  "mcpServers": {
+    "logs-sieve": {
+      "command": "npx",
+      "args": ["-y", "mcp-server-logs-sieve@latest", "--provider", "azure"],
+      "env": {
+        "AZURE_CLIENT_ID": "your-client-id",
+        "AZURE_CLIENT_SECRET": "your-client-secret",
+        "AZURE_TENANT_ID": "your-tenant-id"
+      }
+    }
+  }
+}
+```
+
+---
+
+### Loki
+
+```json
+{
+  "mcpServers": {
+    "logs-sieve": {
+      "command": "npx",
+      "args": ["-y", "mcp-server-logs-sieve@latest", "--provider", "loki"],
+      "env": {
+        "LOKI_BEARER_TOKEN": "your-bearer-token"
+      }
+    }
+  }
+}
+```
+
+> For basic auth instead of a bearer token, use `LOKI_USERNAME` and `LOKI_PASSWORD`.
+
+---
+
+### Elasticsearch
+
+```json
+{
+  "mcpServers": {
+    "logs-sieve": {
+      "command": "npx",
+      "args": ["-y", "mcp-server-logs-sieve@latest", "--provider", "elasticsearch"],
+      "env": {
+        "ELASTICSEARCH_API_KEY": "your-api-key",
+        "ELASTICSEARCH_COMPAT_VERSION": "8"
+      }
+    }
+  }
+}
+```
+
+> For basic auth instead of an API key, use `ELASTICSEARCH_USERNAME` and `ELASTICSEARCH_PASSWORD`. Set `ELASTICSEARCH_COMPAT_VERSION` to match your cluster version (`7` or `8`).
