@@ -3,9 +3,10 @@ import {
   LogsQueryResultStatus,
   LogsTable,
 } from "@azure/monitor-query-logs";
-import { DefaultAzureCredential } from "@azure/identity";
+import { ClientSecretCredential, DefaultAzureCredential } from "@azure/identity";
 
 import {
+  Credentials,
   LogProvider,
   QueryParams,
   TraceParams,
@@ -23,7 +24,15 @@ export class AzureLogProvider implements LogProvider {
   readonly id = "azure";
   readonly name = "Azure Monitor Logs";
 
-  private readonly client = new LogsQueryClient(new DefaultAzureCredential());
+  private readonly client: LogsQueryClient;
+
+  constructor(creds?: Credentials) {
+    const credential =
+      creds?.azureClientId && creds?.azureClientSecret && creds?.azureTenantId
+        ? new ClientSecretCredential(creds.azureTenantId, creds.azureClientId, creds.azureClientSecret)
+        : new DefaultAzureCredential();
+    this.client = new LogsQueryClient(credential);
+  }
 
   async queryLogs(params: QueryParams) {
     const query = buildAzureQuery({

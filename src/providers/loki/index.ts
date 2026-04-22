@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import { LogProvider, LogSource, QueryParams, TraceParams } from "../types.js";
+import { Credentials, LogProvider, LogSource, QueryParams, TraceParams } from "../types.js";
 import {
   buildLokiQuery,
   extractLokiTraceId,
@@ -14,7 +14,12 @@ import { LOKI_API_TIMEOUT_MS, LokiApiEndpoint } from "./constants.js";
 export class LokiLogProvider implements LogProvider {
   readonly id = "loki";
   readonly name = "Grafana Loki";
-  // Docs - https://grafana.com/docs/loki/latest/reference/loki-http-api/
+
+  private readonly creds?: Credentials;
+
+  constructor(creds?: Credentials) {
+    this.creds = creds;
+  }
 
   async queryLogs(params: QueryParams) {
     const query = buildLokiQuery(params);
@@ -292,19 +297,17 @@ export class LokiLogProvider implements LogProvider {
   }
 
   private authHeaders() {
-    const headers = { Accept: "application/json" } as any;
+    const headers = { Accept: "application/json" } as Record<string, string>;
 
-    const bearerToken = process.env.LOKI_BEARER_TOKEN;
+    const bearerToken = this.creds?.lokiBearerToken ?? process.env.LOKI_BEARER_TOKEN;
 
     if (bearerToken) {
       headers["Authorization"] = `Bearer ${bearerToken}`;
-
       return headers;
     }
 
-    const username = process.env.LOKI_USERNAME;
-
-    const password = process.env.LOKI_PASSWORD;
+    const username = this.creds?.lokiUsername ?? process.env.LOKI_USERNAME;
+    const password = this.creds?.lokiPassword ?? process.env.LOKI_PASSWORD;
 
     if (username && password) {
       headers.Authorization = `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`;

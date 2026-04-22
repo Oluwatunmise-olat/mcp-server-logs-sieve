@@ -1,7 +1,7 @@
-import { injectable, inject } from "tsyringe";
 import { Logging } from "@google-cloud/logging";
 
 import {
+  Credentials,
   LogProvider,
   LogEntry,
   QueryParams,
@@ -18,14 +18,19 @@ import {
   messagePatternKey,
 } from "../../utils/gcp.js";
 
-@injectable()
 export class GcpLogProvider implements LogProvider {
   readonly id = "gcp";
   readonly name = "Google Cloud Logging";
 
+  private readonly logging: Logging;
   private readonly clientCache = new Map<string, Logging>();
 
-  constructor(@inject("Logging") private readonly logging: Logging) {}
+  constructor(creds?: Credentials) {
+    const credentials = creds?.googleApplicationCredentials
+      ? JSON.parse(creds.googleApplicationCredentials)
+      : undefined;
+    this.logging = new Logging({ credentials });
+  }
 
   private loggingForProject(projectId?: string): Logging {
     if (!projectId) return this.logging;

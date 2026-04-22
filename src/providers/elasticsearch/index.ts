@@ -11,6 +11,7 @@ import {
   resolveElasticsearchCompatVersion,
 } from "../../utils/elasticsearch.js";
 import {
+  Credentials,
   ElasticsearchListSourcesAggregations,
   LogEntry,
   LogProvider,
@@ -25,6 +26,11 @@ export class ElasticsearchProvider implements LogProvider {
   readonly id = "elasticsearch";
   readonly name = "Elasticsearch";
   private readonly sourceIndexPatterns = ["logs-*", "filebeat-*", "logstash-*"];
+  private readonly creds?: Credentials;
+
+  constructor(creds?: Credentials) {
+    this.creds = creds;
+  }
 
   async queryLogs(params: QueryParams) {
     const client = await this.getClient(params.scope);
@@ -414,14 +420,12 @@ export class ElasticsearchProvider implements LogProvider {
     const baseUrl = normalizeElasticsearchBaseUrl(scope);
 
     const compatVersion = resolveElasticsearchCompatVersion(
-      process.env.ELASTICSEARCH_COMPAT_VERSION,
+      this.creds?.elasticsearchCompatVersion ?? process.env.ELASTICSEARCH_COMPAT_VERSION,
     );
 
-    const apiKey = process.env.ELASTICSEARCH_API_KEY;
-
-    const username = process.env.ELASTICSEARCH_USERNAME;
-
-    const password = process.env.ELASTICSEARCH_PASSWORD;
+    const apiKey = this.creds?.elasticsearchApiKey ?? process.env.ELASTICSEARCH_API_KEY;
+    const username = this.creds?.elasticsearchUsername ?? process.env.ELASTICSEARCH_USERNAME;
+    const password = this.creds?.elasticsearchPassword ?? process.env.ELASTICSEARCH_PASSWORD;
 
     const clientOptions: ConstructorParameters<typeof Client>[0] = {
       node: baseUrl,

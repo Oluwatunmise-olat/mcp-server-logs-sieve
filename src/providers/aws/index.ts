@@ -6,6 +6,7 @@ import {
 } from "@aws-sdk/client-cloudwatch-logs";
 
 import {
+  Credentials,
   LogProvider,
   QueryParams,
   TraceParams,
@@ -18,6 +19,11 @@ export class AwsLogProvider implements LogProvider {
   readonly name = "AWS CloudWatch Logs";
 
   private readonly clientCache = new Map<string, CloudWatchLogsClient>();
+  private readonly creds?: Credentials;
+
+  constructor(creds?: Credentials) {
+    this.creds = creds;
+  }
 
   async queryLogs(params: QueryParams) {
     const client = this.getClientForRegion(params.scope);
@@ -208,9 +214,17 @@ export class AwsLogProvider implements LogProvider {
     const key = region || "default";
 
     if (!this.clientCache.has(key)) {
-      const config = region ? { region } : {};
-
-      this.clientCache.set(key, new CloudWatchLogsClient(config));
+      const { awsAccessKeyId, awsSecretAccessKey, awsSessionToken } = this.creds ?? {};
+      this.clientCache.set(key, new CloudWatchLogsClient({
+        ...(region ? { region } : {}),
+        ...(awsAccessKeyId && awsSecretAccessKey ? {
+          credentials: {
+            accessKeyId: awsAccessKeyId,
+            secretAccessKey: awsSecretAccessKey,
+            sessionToken: awsSessionToken,
+          },
+        } : {}),
+      }));
     }
 
     return this.clientCache.get(key)!;

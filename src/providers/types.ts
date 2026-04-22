@@ -68,6 +68,23 @@ export interface LokiStream {
   values: Array<[string, string]>;
 }
 
+export interface Credentials {
+  googleApplicationCredentials?: string;
+  awsAccessKeyId?: string;
+  awsSecretAccessKey?: string;
+  awsSessionToken?: string;
+  azureClientId?: string;
+  azureClientSecret?: string;
+  azureTenantId?: string;
+  lokiBearerToken?: string;
+  lokiUsername?: string;
+  lokiPassword?: string;
+  elasticsearchApiKey?: string;
+  elasticsearchUsername?: string;
+  elasticsearchPassword?: string;
+  elasticsearchCompatVersion?: string;
+}
+
 export interface LogProvider {
   readonly id: string;
   readonly name: string;
