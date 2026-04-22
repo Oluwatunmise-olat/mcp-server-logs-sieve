@@ -70,11 +70,11 @@ After updating config, restart your MCP client and confirm with `/mcp`.
 
 See provider-specific setup and auth docs:
 
-- [GCP](docs/providers/gcp.md)
-- [AWS](docs/providers/aws.md)
-- [Azure](docs/providers/azure.md)
-- [Loki](docs/providers/loki.md)
-- [Elasticsearch](docs/providers/elasticsearch.md)
+- [GCP](https://github.com/Oluwatunmise-olat/mcp-server-logs-sieve/blob/main/docs/providers/gcp.md)
+- [AWS](https://github.com/Oluwatunmise-olat/mcp-server-logs-sieve/blob/main/docs/providers/aws.md)
+- [Azure](https://github.com/Oluwatunmise-olat/mcp-server-logs-sieve/blob/main/docs/providers/azure.md)
+- [Loki](https://github.com/Oluwatunmise-olat/mcp-server-logs-sieve/blob/main/docs/providers/loki.md)
+- [Elasticsearch](https://github.com/Oluwatunmise-olat/mcp-server-logs-sieve/blob/main/docs/providers/elasticsearch.md)
 
 For Elasticsearch API compatibility headers:
 
@@ -95,17 +95,17 @@ mcp-server-logs-sieve sources --provider gcp --scope my-project
 
 ## Documentation
 
-- [Docs home](docs/index.md)
-- [Getting started](docs/getting-started.md)
-- [MCP client setup (Claude Code, Claude Desktop, Cursor, Windsurf)](docs/guides/mcp-clients.md)
-- [Tool reference](docs/tools/query-logs.md)
-- [Troubleshooting](docs/troubleshooting.md)
-- [Compatibility matrix](docs/reference/compatibility.md)
+- [Docs home](https://github.com/Oluwatunmise-olat/mcp-server-logs-sieve/blob/main/docs/index.md)
+- [Getting started](https://github.com/Oluwatunmise-olat/mcp-server-logs-sieve/blob/main/docs/getting-started.md)
+- [MCP client setup (Claude Code, Claude Desktop, Cursor, Windsurf)](https://github.com/Oluwatunmise-olat/mcp-server-logs-sieve/blob/main/docs/guides/mcp-clients.md)
+- [Tool reference](https://github.com/Oluwatunmise-olat/mcp-server-logs-sieve/blob/main/docs/tools/query-logs.md)
+- [Troubleshooting](https://github.com/Oluwatunmise-olat/mcp-server-logs-sieve/blob/main/docs/troubleshooting.md)
+- [Compatibility matrix](https://github.com/Oluwatunmise-olat/mcp-server-logs-sieve/blob/main/docs/reference/compatibility.md)
 
 ## Contributing
 
 Contributions are welcome.
 
-- Start here: [CONTRIBUTING.md](CONTRIBUTING.md)
+- Start here: [CONTRIBUTING.md](https://github.com/Oluwatunmise-olat/mcp-server-logs-sieve/blob/main/CONTRIBUTING.md)
 - Issues: <https://github.com/Oluwatunmise-olat/mcp-server-logs-sieve/issues>
 - Discussions: <https://github.com/Oluwatunmise-olat/mcp-server-logs-sieve/discussions>
