@@ -9,6 +9,7 @@ import { registerQueryLogs } from "./tools/query-logs.js";
 import { registerSummarizeLogs } from "./tools/summarize-logs.js";
 import { registerListLogSources } from "./tools/list-log-sources.js";
 import { registerTraceRequest } from "./tools/trace-request.js";
+import { registerPrompts } from "./prompts.js";
 
 function credentialsFromHeaders(req: IncomingMessage): Credentials {
   const headers = req.headers;
@@ -73,6 +74,7 @@ const httpServer = createServer(async (req, res) => {
   registerSummarizeLogs(server, provider);
   registerListLogSources(server, provider);
   registerTraceRequest(server, provider);
+  registerPrompts(server);
 
   const transport = new StreamableHTTPServerTransport({
     sessionIdGenerator: undefined,

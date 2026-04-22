@@ -11,6 +11,7 @@ export function registerQueryLogs(server: McpServer, provider: LogProvider) {
     {
       description:
         "Search and filter log entries by severity, time range, text patterns, and resource type",
+      annotations: { readOnlyHint: true },
       inputSchema: {
         scope: z
           .string()

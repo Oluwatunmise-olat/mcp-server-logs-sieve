@@ -14,6 +14,7 @@ export function registerSummarizeLogs(
     {
       description:
         "Summarize and aggregate log entries - severity counts, top error patterns, time range",
+      annotations: { readOnlyHint: true },
       inputSchema: {
         scope: z
           .string()

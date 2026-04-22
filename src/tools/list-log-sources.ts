@@ -11,6 +11,7 @@ export function registerListLogSources(
     "list_log_sources",
     {
       description: "List available log names and resource/source types for the selected scope",
+      annotations: { readOnlyHint: true },
       inputSchema: {
         scope: z
           .string()

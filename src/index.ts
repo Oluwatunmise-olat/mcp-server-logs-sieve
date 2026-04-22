@@ -7,6 +7,7 @@ import { registerQueryLogs } from "./tools/query-logs.js";
 import { registerSummarizeLogs } from "./tools/summarize-logs.js";
 import { registerListLogSources } from "./tools/list-log-sources.js";
 import { registerTraceRequest } from "./tools/trace-request.js";
+import { registerPrompts } from "./prompts.js";
 
 const providerIdx = process.argv.indexOf("--provider");
 
@@ -25,6 +26,7 @@ if (providerName) {
   registerSummarizeLogs(server, provider);
   registerListLogSources(server, provider);
   registerTraceRequest(server, provider);
+  registerPrompts(server);
 } else {
   console.error("--provider is required. Supported: gcp, aws, azure, loki, elasticsearch");
 }

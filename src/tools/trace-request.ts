@@ -11,6 +11,7 @@ export function registerTraceRequest(server: McpServer, provider: LogProvider) {
     {
       description:
         "Trace a request flow across services. Pass a trace_id directly, or use filters to find matching logs and automatically extract traces from them.",
+      annotations: { readOnlyHint: true },
       inputSchema: {
         scope: z
           .string()
