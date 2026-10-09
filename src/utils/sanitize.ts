@@ -2,49 +2,63 @@ import { LogEntry, LogSummary, TraceResult } from "../providers/types.js";
 import { redactText, redactValueByKey, redactDeep } from "./redact.js";
 
 const MAX_OUTPUT_CHARS = 80_000;
+const MAX_TRACE_ENTRIES = 50;
 
 export function sanitizeEntries(entries: LogEntry[]): unknown {
   const cleaned = entries.map((e) =>
     redactDeep({ ...e, message: truncate(e.message, 500) }),
   );
 
-  const json = JSON.stringify(cleaned);
-
-  if (json.length <= MAX_OUTPUT_CHARS) return cleaned;
-
-  const avgSize = Math.ceil(json.length / cleaned.length);
-  const keep = Math.max(1, Math.floor(MAX_OUTPUT_CHARS / avgSize));
+  const capped = limitBySize(cleaned, MAX_OUTPUT_CHARS);
+  if (capped.length === cleaned.length) return capped;
 
   return {
-    entries: cleaned.slice(0, keep),
-    _note: `Showing ${keep} of ${entries.length} entries. Narrow your query with time range or text_filter.`,
+    entries: capped,
+    _note: `Showing ${capped.length} of ${entries.length} entries. Narrow your query with time range or text_filter.`,
   };
 }
 
 export function sanitizeSummary(summary: LogSummary): unknown {
+  const patterns = summary.top_patterns.map((p) => ({
+    ...p,
+    sample: truncate(p.sample, 200),
+  }));
+
+  const capped = limitBySize(patterns, MAX_OUTPUT_CHARS);
+
   return redactDeep({
     ...summary,
-    top_patterns: summary.top_patterns.map((p) => ({
-      ...p,
-      sample: truncate(p.sample, 200),
-    })),
+    top_patterns: capped,
+    ...(capped.length < patterns.length
+      ? {
+          _note: `Showing ${capped.length} of ${patterns.length} top_patterns. Narrow your query or lower the limit.`,
+        }
+      : {}),
   });
 }
 
 export function sanitizeTraces(traces: TraceResult[]): unknown {
-  return traces.map((trace) => {
-    const capped = trace.entries.slice(0, 50);
+  const cleaned = traces.map((trace) => {
+    const capped = trace.entries.slice(0, MAX_TRACE_ENTRIES);
 
     return redactDeep({
       ...trace,
       entries: capped.map((e) => ({ ...e, message: truncate(e.message, 500) })),
-      ...(trace.entries.length > 50
+      ...(trace.entries.length > MAX_TRACE_ENTRIES
         ? {
-            _note: `Showing 50 of ${trace.entries.length} entries for this trace.`,
+            _note: `Showing ${MAX_TRACE_ENTRIES} of ${trace.entries.length} entries for this trace.`,
           }
         : {}),
     });
   });
+
+  const capped = limitBySize(cleaned, MAX_OUTPUT_CHARS);
+  if (capped.length === cleaned.length) return capped;
+
+  return {
+    traces: capped,
+    _note: `Showing ${capped.length} of ${cleaned.length} traces. Narrow your query with trace_id or a shorter time range.`,
+  };
 }
 
 export function formatEntries(entries: LogEntry[]): string {
@@ -166,4 +180,16 @@ function flattenObject(
   }
 
   return pairs.join(" ");
+}
+
+function limitBySize<T>(items: T[], maxChars: number): T[] {
+  if (!items.length) return items;
+
+  const json = JSON.stringify(items);
+  if (json.length <= maxChars) return items;
+
+  const avgSize = Math.ceil(json.length / items.length);
+  const keep = Math.max(1, Math.floor(maxChars / avgSize));
+
+  return items.slice(0, keep);
 }
